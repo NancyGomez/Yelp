@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
     var businesses: [Business]!
     
@@ -25,8 +25,18 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
         
+        searchBar = UISearchBar()
+        searchBar.sizeToFit()
+        searchBar.showsCancelButton = true
+        searchBar.delegate = self
+        navigationItem.titleView = searchBar
         
-        Business.searchWithTerm(term: "Thai", completion: { (businesses: [Business]?, error: Error?) -> Void in
+        loadResults()
+        
+    }
+    
+    func loadResults() {
+        Business.searchWithTerm(term: searchStr, completion: { (businesses: [Business]?, error: Error?) -> Void in
             
             self.businesses = businesses
             self.tableView.reloadData()
@@ -39,37 +49,29 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
                 }
             }
             
-            }
+        }
         )
-        
-        searchBar = UISearchBar()
-        searchBar.sizeToFit()
-        searchBar.showsCancelButton = true
-        searchBar.delegate = self as? UISearchBarDelegate
-        navigationItem.titleView = searchBar
-        
-        
     }
     
     func searchYelp(input: String) {
+        print("searchYelp")
         searchStr = input
-        Business.searchWithTerm(term: searchStr, completion: { (businesses: [Business]?, error: Error?) -> Void in
-            self.businesses = businesses
-            self.tableView.reloadData()
-        })
+        loadResults()
         
     }
     
-    func searchYelpCancelClick(_ searchBar: UISearchBar) {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        print("searchYelpCancelClick")
         searchBar.showsCancelButton = false
         searchBar.text = ""
         searchBar.resignFirstResponder()
         self.tableView.reloadData()
     }
     
-    func searchYelpSearchClick(_ searchBar: UISearchBar) {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        print("searchYelpSearchClick")
         searchYelp(input: searchBar.text!)
-        tableView.reloadData()
+        self.tableView.reloadData()
         searchBar.resignFirstResponder()
     }
     
