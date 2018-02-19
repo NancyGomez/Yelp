@@ -12,6 +12,9 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     
     var businesses: [Business]!
     
+    var searchBar: UISearchBar!
+    var searchStr: String = ""
+    
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
@@ -39,17 +42,35 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
             }
         )
         
-        /* Example of Yelp search with more search options specified
-         Business.searchWithTerm("Restaurants", sort: .distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: Error!) -> Void in
-         self.businesses = businesses
-         
-         for business in businesses {
-         print(business.name!)
-         print(business.address!)
-         }
-         }
-         */
+        searchBar = UISearchBar()
+        searchBar.sizeToFit()
+        searchBar.showsCancelButton = true
+        searchBar.delegate = self as? UISearchBarDelegate
+        navigationItem.titleView = searchBar
         
+        
+    }
+    
+    func searchYelp(input: String) {
+        searchStr = input
+        Business.searchWithTerm(term: searchStr, completion: { (businesses: [Business]?, error: Error?) -> Void in
+            self.businesses = businesses
+            self.tableView.reloadData()
+        })
+        
+    }
+    
+    func searchYelpCancelClick(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        self.tableView.reloadData()
+    }
+    
+    func searchYelpSearchClick(_ searchBar: UISearchBar) {
+        searchYelp(input: searchBar.text!)
+        tableView.reloadData()
+        searchBar.resignFirstResponder()
     }
     
     override func didReceiveMemoryWarning() {
